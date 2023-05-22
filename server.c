@@ -6,51 +6,46 @@
 /*   By: ngnguyen <ngnguyen@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/23 18:11:27 by ngnguyen          #+#    #+#             */
-/*   Updated: 2023/02/21 15:53:59 by ngnguyen         ###   ########.fr       */
+/*   Updated: 2023/05/22 14:06:39 by ngnguyen         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
-#include <signal.h>
-#include <unistd.h>
+#include "minitalk.h"
 
-// void	server_handle()
-// {
-
-// }
-
-struct sigaction	sact;
-sigset_t			sigset;
-
-void	addsignal1()
+void	signal_handler(int signal)
 {
-	sigemptyset(&sact.sa_mask); // sa_mask: signal mask to apply
-	sact.sa_flags = SA_SIGINFO;
-	sigaction(SIGUSR1, &sact, NULL);
+	static int	bit;
+	static int	i;
 
-	sigemptyset(&sigset);
-	sigaddset(&sigset, SIGUSR1);
-	kill(getpid(), SIGUSR1);
+	if (signal == SIGUSR1)
+		i |= (0x01 << bit);
+	bit++;
+	if (bit == 8)
+	{
+		ft_printf("%c", i);
+		bit = 0;
+		i = 0;
+	}
 }
 
-void	addsignal2()
+int	main(int argc, char **argv)
 {
-	sigemptyset(&sact.sa_mask); // sa_mask: signal mask to apply
-	sact.sa_flags = SA_SIGINFO;
-	sigaction(SIGUSR2, &sact, NULL);
+	int	pid_id;
 
-	sigemptyset(&sigset);
-	sigaddset(&sigset, SIGUSR2);
-	kill(getpid(), SIGUSR2);
-}
-
-int	main(void)
-{
-	int	pid_id = getpid();
-	printf("Server ID: %d\n", pid_id);
-	
-	printf("Waiting for the signal");
-
-	pause();
+	(void)argv;
+	if (argc != 1)
+	{
+		ft_printf("Wrong format!\n");
+		return (1);
+	}
+	pid_id = getpid();
+	ft_printf("Server ID: %d\n", pid_id);
+	ft_printf("Waiting for the signal\n");
+	while (argc == 1)
+	{
+		signal(SIGUSR1, signal_handler);
+		signal(SIGUSR2, signal_handler);
+		pause();
+	}
 	return (0);
 }
